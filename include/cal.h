@@ -19,7 +19,7 @@ typedef struct {
     int start_push;
 } Date;
 
-int *gen_days(int month, int days[4*128]);
+int gen_days(int month, int days[4*128]);
 int draw_cal(int *days, int month);
 
 void populate_nmonths();

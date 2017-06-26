@@ -48,7 +48,10 @@ char getch(int echo) {
     return c;
 }
 
-char kbhit() {
+int _kbhit() { //the purpose of kbhit is so it doesn't pause the
+               //process while getting keyboard input like getch.
+               //this can be espesially useful for doing a constant
+               //process such as updating the time.
     struct termios oldt, newt;
     int ch;
     int oldf;
@@ -65,10 +68,19 @@ char kbhit() {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     fcntl(STDIN_FILENO, F_SETFL, oldf);
 
-    if(ch != EOF) {
+    if (ch != EOF) {
         ungetc(ch, stdin);
-        return ch;
+        return 1;
     }
 
+    return 0;
+}
+
+char kbhit() {
+    int key_pressed = _kbhit();
+    if (key_pressed) {
+        char key = getchar();
+        return key;
+    }
     return 0;
 }

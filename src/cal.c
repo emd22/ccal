@@ -8,18 +8,21 @@
 #include <clock.h>
 
 static Date months[12] = {
-    {31, 0},
-    {28, 3},
-    {31, 3},
-    {30, 6},
-    {31, 1},
-    {30, 4},
-    {31, 6},
-    {31, 2},
-    {30, 5},
-    {31, 0},
-    {30, 3},
-    {31, 5}
+    {31, 0}, //jan
+    {28, 3}, //feb
+    {31, 3}, //mar
+    {30, 6}, //apr
+    {31, 1}, //may
+    {30, 4}, //jun
+    {31, 6}, //jul
+    {31, 2}, //aug
+    {30, 5}, //sep
+    {31, 0}, //oct
+    {30, 3}, //nov
+    {31, 5}  //dec
+
+    //the first number is the number of days in the month.
+    //the second is the push back for the calendar.
 };
 
 typedef struct {
@@ -39,7 +42,7 @@ void new_month(char *name, int id) {
 }
 
 void populate_nmonths() {
-    new_month("January",  0);
+    new_month("January",  0); //set the month name and index located
     new_month("Febuary",  1);
     new_month("March",    2);
     new_month("April",    3);
@@ -67,7 +70,7 @@ Date get_date(int month) {
     return months[month];
 }
 
-int *gen_days(int month, int days[4*128]) {
+int gen_days(int month, int days[4*128]) {
     Date set_month = get_date(month);
     int days_idx = 0; 
     int full_len = set_month.len+set_month.start_push;
@@ -90,18 +93,20 @@ void update(int space, char buffer[128]) {
 int draw_cal(int *days, int month) {
     Date set_month = get_date(month);
 
-    int amt_weeks = (int)set_month.len+set_month.start_push/7;
-
-    int i;
     int h = CAL_TOP_SPACING;
     int w = CAL_W_PADDING;
     
     char *nm_name = nmonths[month].name;
     strcat(nm_name, ", ");
     
-    string_edit(CAL_LABEL_X, CAL_LABEL_Y, nm_name, strlen(nm_name));
+    string_edit(CAL_LABEL_X, CAL_LABEL_Y, nm_name, strlen(nm_name), DEFAULT_COLOR);
 
-    for (i = 0; i < amt_weeks; i++) {
+    int color;
+    int cur_day = get_day();
+    int cur_mon = get_mon();
+
+    int i;
+    for (i = 0; i < set_month.len+set_month.start_push; i++) {
         w += 3;
 
         if (w >= CAL_W_STOP) {
@@ -109,10 +114,14 @@ int draw_cal(int *days, int month) {
             w = CAL_W_PADDING;
         }
 
-        char day[128];
-        snprintf(day, 128, "%d", days[i]);
+        char day[3];
+        snprintf(day, 3, "%d", days[i]);
         if (days[i] > -1) {
-            string_edit(w, h, day, 2);
+            color = DEFAULT_COLOR;
+            if (days[i] == cur_day && month-1 == cur_mon-1) {
+                color = 46/*background cyan*/;
+            }
+            string_edit(w, h, day, 2, color);
         }
     }
     return strlen(nm_name);

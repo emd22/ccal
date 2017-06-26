@@ -5,41 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
-
-String *str_alloc(int len, char *info) {
-    String *string = malloc(sizeof(String));
-    string->len = len;
-    string->info = malloc(len+1);
-    strcpy(string->info, info);
-    return string;
-}
-
-void str_print(String *string) {
-    puts(string->info);
-}
-
-void str_edit(String *string, int index, char to_add) {
-    string->info[index] = to_add;
-}
-
-void str_cat_c(String *string, char *info, int info_len) {
-    int current_len = strlen(string->info);
-    int i;
-    for (i = 0; i < info_len; i++) {
-        str_edit(string, current_len+i, info[i]);
-        printf("%d\n", string->len);
-        string->len++;
-    } 
-}
-
-void str_cat(String *string, String *string2) {
-    str_cat_c(string, string2->info, string2->len);
-}
-
-void str_free(String *string) {
-    free(string->info);
-    free(string);
-}
+#include <unistd.h>
 
 int term_height() {
   struct winsize size;
@@ -60,15 +26,15 @@ void error(char *message) {
     exit(1);
 }
 
-void edit(int x, int y, char ch) {
+void edit(int x, int y, char ch, int color) {
     caret_position(x, y);
-    putchar(ch);
+    colored_text(ch, color);
 }
 
-void string_edit(int x, int y, char *str, int len) {
+void string_edit(int x, int y, char *str, int len, int color) {
     int i;
     for (i = 0; i < len; i++) {
-        edit(x+i, y, str[i]);
+        edit(x+i, y, str[i], color);
     }
 }
 
@@ -76,4 +42,13 @@ char *int_to_str(int n) {
     char *str;
     snprintf(str, 128, "%d", n);
     return str;
+}
+
+void colored_text(char ch, int color) {
+    printf("\033[%dm%c\033[15m", color, ch); //pretty nasty ansi code
+    printf("\033[%dm\033[15m", DEFAULT_COLOR);  
+}
+
+void time_delay(int ms) {
+    usleep(ms * 1000);
 }
